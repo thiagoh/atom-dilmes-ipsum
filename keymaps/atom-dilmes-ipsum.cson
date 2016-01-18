@@ -12,3 +12,6 @@
 
 'atom-text-editor':
   'ctrl-alt-a': 'atom-dilmes-ipsum:dilmes'
+
+'atom-text-editor:not([mini])':
+  'tab': 'atom-dilmes-ipsum:dilmesSnippet'

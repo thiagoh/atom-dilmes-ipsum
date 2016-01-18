@@ -3,7 +3,7 @@
 module.exports = AtomDilmesIpsum =
   subscriptions: null
   phrases: null
-
+  dabeug: false
   activate: (state) ->
 
     @phrases = ["Eu, para ir, eu faço uma escala. Para voltar, eu faço duas, para voltar para o Brasil. Neste caso agora nós tínhamos uma discussão. Eu tinha que sair de Zurique, podia ir para Boston, ou pra Boston, até porque... vocês vão perguntar, mas é mais longe? Não é não, a Terra é curva, viu?",
@@ -18,25 +18,72 @@ module.exports = AtomDilmesIpsum =
               "A população ela precisa da Zona Franca de Manaus, porque na Zona franca de Manaus, não é uma zona de exportação, é uma zona para o Brasil. Portanto ela tem um objetivo, ela evita o desmatamento, que é altamente lucravito. Derrubar arvores da natureza é muito lucrativo!",
               "Ai você fala o seguinte: \"- Mas vocês acabaram isso?\" Vou te falar: -\"Não, está em andamento!\" Tem obras que \"vai\" durar pra depois de 2010. Agora, por isso, nós já não desenhamos, não começamos a fazer projeto do que nós \"podêmo fazê\"? 11, 12, 13, 14... Por que é que não?"
               "Eu queria destacar uma questão, que é uma questão que está afetando o Brasil inteiro, que é a questão da vigilância sanitária: gente, é o vírus Aedes aegypti, com as suas diferentes modalidades: chikungunya, zika vírus."];
-
-    console.log 'AtomDilmesIpsum activate was called! 2'
+    if @dabeug
+      console.log 'AtomDilmesIpsum activate was called! 2'
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'atom-dilmes-ipsum:dilmes': => @dilmes()
+    @subscriptions.add atom.commands.add 'atom-workspace',
+      'atom-dilmes-ipsum:dilmes': => @dilmes(),
+      'atom-dilmes-ipsum:dilmesSnippet': (event) => @dilmesSnippet(event)
 
   deactivate: ->
     @subscriptions.dispose()
 
-  dilmes: ->
+  dilmesSnippet: (event) ->
+    editor = atom.workspace.getActiveTextEditor()
+    if @isDilmes(editor)
+      @doDilmes(editor, true)
+    else
+      event.abortKeyBinding()
+
+  # Returns `false` if the values aren't the same for all cursors
+  isDilmes: (editor) ->
+
+    for cursor in editor.getCursors()
+      position = cursor.getBufferPosition()
+
+      if @dabeug
+        console.log 'isDilmes position ' + position
+
+      prefixStart = cursor.getBeginningOfCurrentWordBufferPosition()
+      cursorSnippetPrefix = editor.getTextInRange([prefixStart, position])
+
+      if @dabeug
+        console.log 'isDilmes prefixStart ' + prefixStart + ' / ' + cursorSnippetPrefix
+
+      return false if snippetPrefix? and cursorSnippetPrefix isnt snippetPrefix or cursorSnippetPrefix isnt 'dilmes'
+      snippetPrefix = cursorSnippetPrefix
+
+    return true if snippetPrefix is 'dilmes'
+    return false
+
+  snippetToExpandUnderCursor: (editor) ->
+    return false unless editor.getLastSelection().isEmpty()
+    snippets = @getSnippets(editor)
+    return false if _.isEmpty(snippets)
+
+    if prefixData = @getPrefixText(snippets, editor)
+      @snippetForPrefix(snippets, prefixData.snippetPrefix, prefixData.wordPrefix)
+
+  doDilmes: (editor, deleteSnippet) ->
+
     ix = parseInt(Math.random() * @phrases.length-1)
     sentence = @phrases[ix] + '\n'
-    console.debug 'AtomDilmesIpsum was called! Sentence: ' + sentence
+    
+    if @dabeug
+      console.debug 'AtomDilmesIpsum was called! Sentence: ' + sentence
 
+    if deleteSnippet
+      editor.deleteToBeginningOfWord()
+
+    editor.insertText(sentence)
+
+  dilmes: ->
     if editor = atom.workspace.getActiveTextEditor()
-       editor.insertText(sentence)
+      @doDilmes(editor, false)
 
     #editors = atom.workspace.getTextEditors()
     #for editor in editors
