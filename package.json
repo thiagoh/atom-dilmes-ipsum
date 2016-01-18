@@ -5,10 +5,7 @@
   "description": "A short description of your package",
   "keywords": [
   ],
-  "activationCommands": {
-    "atom-workspace": "atom-dilmes-ipsum:dilmes"
-  },
-  "repository": "https://github.com/atom/atom-dilmes-ipsum",
+  "repository": "https://github.com/thiagoh/atom-dilmes-ipsum",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
