@@ -3,7 +3,7 @@
 module.exports = AtomDilmesIpsum =
   subscriptions: null
   phrases: null
-  dabeug: false
+  debug: false
   activate: (state) ->
 
     @phrases = ["Eu, para ir, eu faço uma escala. Para voltar, eu faço duas, para voltar para o Brasil. Neste caso agora nós tínhamos uma discussão. Eu tinha que sair de Zurique, podia ir para Boston, ou pra Boston, até porque... vocês vão perguntar, mas é mais longe? Não é não, a Terra é curva, viu?",
@@ -18,7 +18,7 @@ module.exports = AtomDilmesIpsum =
               "A população ela precisa da Zona Franca de Manaus, porque na Zona franca de Manaus, não é uma zona de exportação, é uma zona para o Brasil. Portanto ela tem um objetivo, ela evita o desmatamento, que é altamente lucravito. Derrubar arvores da natureza é muito lucrativo!",
               "Ai você fala o seguinte: \"- Mas vocês acabaram isso?\" Vou te falar: -\"Não, está em andamento!\" Tem obras que \"vai\" durar pra depois de 2010. Agora, por isso, nós já não desenhamos, não começamos a fazer projeto do que nós \"podêmo fazê\"? 11, 12, 13, 14... Por que é que não?"
               "Eu queria destacar uma questão, que é uma questão que está afetando o Brasil inteiro, que é a questão da vigilância sanitária: gente, é o vírus Aedes aegypti, com as suas diferentes modalidades: chikungunya, zika vírus."];
-    if @dabeug
+    if @debug
       console.log 'AtomDilmesIpsum activate was called! 2'
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
@@ -34,25 +34,25 @@ module.exports = AtomDilmesIpsum =
 
   dilmesSnippet: (event) ->
     editor = atom.workspace.getActiveTextEditor()
-    if @isDilmes(editor)
+    if @isDilmesPrefix(editor)
       @doDilmes(editor, true)
     else
       event.abortKeyBinding()
 
   # Returns `false` if the values aren't the same for all cursors
-  isDilmes: (editor) ->
+  isDilmesPrefix: (editor) ->
 
     for cursor in editor.getCursors()
       position = cursor.getBufferPosition()
 
-      if @dabeug
-        console.log 'isDilmes position ' + position
+      if @debug
+        console.log 'isDilmesPrefix position ' + position
 
       prefixStart = cursor.getBeginningOfCurrentWordBufferPosition()
       cursorSnippetPrefix = editor.getTextInRange([prefixStart, position])
 
-      if @dabeug
-        console.log 'isDilmes prefixStart ' + prefixStart + ' / ' + cursorSnippetPrefix
+      if @debug
+        console.log 'isDilmesPrefix prefixStart ' + prefixStart + ' / ' + cursorSnippetPrefix
 
       return false if snippetPrefix? and cursorSnippetPrefix isnt snippetPrefix or cursorSnippetPrefix isnt 'dilmes'
       snippetPrefix = cursorSnippetPrefix
@@ -72,8 +72,8 @@ module.exports = AtomDilmesIpsum =
 
     ix = parseInt(Math.random() * @phrases.length-1)
     sentence = @phrases[ix] + '\n'
-    
-    if @dabeug
+
+    if @debug
       console.debug 'AtomDilmesIpsum was called! Sentence: ' + sentence
 
     if deleteSnippet
